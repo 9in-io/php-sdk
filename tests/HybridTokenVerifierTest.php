@@ -15,7 +15,7 @@ use Nine\Tests\Support\Signers;
 use Nine\TokenVerifier;
 use PHPUnit\Framework\TestCase;
 
-/** Mirrors the createTokenVerifier tests of @9in/sdk. */
+/** Mirrors the createTokenVerifier tests of @9in-io/sdk. */
 final class HybridTokenVerifierTest extends TestCase
 {
     private const ISSUER = 'https://hybrid.9in.test';

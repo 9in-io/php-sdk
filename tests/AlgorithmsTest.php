@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Every algorithm 9in signs access tokens with: vectors signed by WebCrypto (as used by
- * @9in/sdk and the 9in server) and tokens signed here with PHP.
+ * @9in-io/sdk and the 9in server) and tokens signed here with PHP.
  */
 final class AlgorithmsTest extends TestCase
 {

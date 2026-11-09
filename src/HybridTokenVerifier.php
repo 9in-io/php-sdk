@@ -14,7 +14,7 @@ use Nine\TokenCache\StorageAnswerCache;
 
 /**
  * Access-token verification with a choice between speed and revocation, the PHP
- * equivalent of `createTokenVerifier` in @9in/sdk:
+ * equivalent of `createTokenVerifier` in @9in-io/sdk:
  *
  * - `hybrid` (default): the local check (TokenVerifier), then one introspection per token.
  *   The answer is cached and dropped when a `token.revoked`, `session.revoked` or user

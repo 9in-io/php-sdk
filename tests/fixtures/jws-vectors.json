@@ -1,5 +1,5 @@
 {
-  "generatedBy": "WebCrypto (Node v25.6.0), as used by @9in/sdk",
+  "generatedBy": "WebCrypto (Node v25.6.0), as used by @9in-io/sdk",
   "issuer": "https://vectors.9in.test",
   "claims": {
     "iss": "https://vectors.9in.test",

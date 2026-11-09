@@ -15,7 +15,7 @@ final class Nine
     public const VERSION = '3.0.0';
 
     /**
-     * Same as `verifyAccessToken` in @9in/sdk/server.
+     * Same as `verifyAccessToken` in @9in-io/sdk/server.
      *
      * @param array{issuer?: string, audience?: string|string[], scope?: string|string[], secret?: string, clockTolerance?: int, http?: HttpClientInterface, cache?: StorageInterface} $options
      *        issuer defaults to NINE_ISSUER
@@ -32,7 +32,7 @@ final class Nine
     }
 
     /**
-     * Same as `createTokenVerifier` in @9in/sdk/server: local, hybrid (default) or
+     * Same as `createTokenVerifier` in @9in-io/sdk/server: local, hybrid (default) or
      * introspect verification with a revocation-aware cache. See HybridTokenVerifier.
      *
      * @param array<string, mixed> $options issuer (default NINE_ISSUER), audience, secret, mode,

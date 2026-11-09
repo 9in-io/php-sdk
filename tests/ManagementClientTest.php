@@ -87,6 +87,35 @@ final class ManagementClientTest extends TestCase
         $this->assertSame(3, $client->revokeUserSessions('usr/1'));
     }
 
+    public function testImportsInBulkWithConflictModeAndSource(): void
+    {
+        $this->issuer->http->on('POST', TestIssuer::ISSUER . '/api/v1/users/import', function ($url, $headers, $body) {
+            return new Response(200, [], json_encode(['results' => [['index' => 0, 'ok' => true, 'status' => 'created', 'id' => 'auth0|42']], 'echo' => json_decode($body, true)]));
+        });
+        $client  = $this->client();
+        $results = $client->importUsers([['id' => 'auth0|42', 'email' => 'jane@acme.com', 'passwordHash' => '$2b$10$x']], ['onConflict' => 'update', 'source' => 'auth0']);
+        $this->assertSame('created', $results[0]['status']);
+        $sent = json_decode((string) $this->issuer->http->callsTo(TestIssuer::ISSUER . '/api/v1/users/import')[0]['body'], true);
+        $this->assertSame(['users', 'on_conflict', 'source'], array_keys($sent));
+        $this->assertSame(['update', 'auth0'], [$sent['on_conflict'], $sent['source']]);
+
+        $client->importUsers([['email' => 'b@acme.com']]);
+        $plain = json_decode((string) $this->issuer->http->callsTo(TestIssuer::ISSUER . '/api/v1/users/import')[1]['body'], true);
+        $this->assertSame(['users'], array_keys($plain));
+    }
+
+    public function testListsAndEndsSessions(): void
+    {
+        $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users/usr_1/sessions', ['sessions' => [['sid' => 's1', 'userId' => 'usr_1']]]);
+        $this->issuer->http->on('DELETE', TestIssuer::ISSUER . '/api/v1/sessions/', function () {
+            return new Response(204, [], '');
+        });
+        $client = $this->client();
+        $this->assertSame('s1', $client->listUserSessions('usr_1')[0]['sid']);
+        $client->revokeSession('s/1');
+        $this->assertSame(TestIssuer::ISSUER . '/api/v1/sessions/s%2F1', $this->issuer->http->callsTo(TestIssuer::ISSUER . '/api/v1/sessions/')[0]['url']);
+    }
+
     public function testErrorsCarryCodeAndStatus(): void
     {
         $this->issuer->http->json('PATCH', TestIssuer::ISSUER . '/api/v1/users/usr_1', ['error' => 'identifier_taken'], 409);

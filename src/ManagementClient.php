@@ -125,14 +125,24 @@ final class ManagementClient
     }
 
     /**
-     * Bulk import (up to 500 per call; bcrypt, argon2 and PBKDF2 hashes are accepted).
+     * Bulk import (up to 500 per call; bcrypt, argon2, PBKDF2 and Firebase scrypt hashes are
+     * accepted as `passwordHash`). Records may keep their old `id` and carry `identities`.
      *
-     * @param array<int, array<string, mixed>> $users
-     * @return array<int, array<string, mixed>> per-row results
+     * @param array<int, array<string, mixed>>               $users
+     * @param array{onConflict?: string, source?: string}     $options onConflict "skip" (default) or
+     *        "update" for users that already exist; source is recorded on `user.imported` events
+     * @return array<int, array<string, mixed>> per-row results, in order
      */
-    public function importUsers(array $users): array
+    public function importUsers(array $users, array $options = []): array
     {
-        return $this->request('POST', '/users/import', ['users' => $users])['results'];
+        $body = ['users' => $users];
+        if (!empty($options['onConflict'])) {
+            $body['on_conflict'] = (string) $options['onConflict'];
+        }
+        if (!empty($options['source'])) {
+            $body['source'] = (string) $options['source'];
+        }
+        return $this->request('POST', '/users/import', $body)['results'];
     }
 
     /**

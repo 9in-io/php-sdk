@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.0.2 - 2026-11-09
+
+* `OAuth2Client::revoke()` throws `NineException` when 9in refuses the revocation (for example
+  `invalid_client` with a wrong secret, or a 5xx). It used to ignore the answer, so a failed revocation
+  looked successful. Unknown or already revoked tokens still succeed (RFC 7009). `9in/laravel` already
+  catches it on logout.
+
 ## 3.0.1 - 2026-11-09
 
 Same code as 3.0.0, released again under a new version because the 3.0.0 tag was moved to a

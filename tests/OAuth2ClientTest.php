@@ -189,6 +189,37 @@ final class OAuth2ClientTest extends TestCase
         }
     }
 
+    public function testRevokeSendsTheTokenAndReportsRefusals(): void
+    {
+        $status = 200;
+        $this->issuer->http->on('POST', TestIssuer::ISSUER . '/oauth/revoke', function () use (&$status) {
+            return $status === 401
+                ? new Response(401, [], '{"error":"invalid_client","error_description":"bad secret"}')
+                : new Response($status, [], $status === 200 ? '' : '<html>down</html>');
+        });
+
+        $this->client()->revoke('rt_1');
+        $this->client(['client_secret' => null])->revoke('at_1', 'access_token');
+        $calls = $this->issuer->http->callsTo(TestIssuer::ISSUER . '/oauth/revoke');
+        parse_str((string) $calls[0]['body'], $confidential);
+        parse_str((string) $calls[1]['body'], $public);
+        $this->assertSame(['token' => 'rt_1', 'token_type_hint' => 'refresh_token'], $confidential);
+        $this->assertStringStartsWith('Basic ', $calls[0]['headers']['Authorization']);
+        $this->assertSame(['token' => 'at_1', 'token_type_hint' => 'access_token', 'client_id' => 'app_1'], $public);
+
+        foreach ([401 => ['invalid_client', 'bad secret'], 503 => ['revocation_failed', 'HTTP 503']] as $code => [$error, $description]) {
+            $status = $code;
+            try {
+                $this->client()->revoke('rt_1');
+                $this->fail("HTTP {$code} must be reported");
+            } catch (NineException $e) {
+                $this->assertSame($error, $e->getError());
+                $this->assertSame($code, $e->getStatus());
+                $this->assertStringContainsString($description, $e->getMessage());
+            }
+        }
+    }
+
     public function testLogoutUrl(): void
     {
         $url = $this->client()->logoutUrl('id.tok', 'https://app.acme.test/');

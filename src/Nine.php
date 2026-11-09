@@ -12,7 +12,7 @@ use Nine\Storage\StorageInterface;
  */
 final class Nine
 {
-    public const VERSION = '3.0.0';
+    public const VERSION = '3.0.2';
 
     /**
      * Same as `verifyAccessToken` in @9in-io/sdk/server.

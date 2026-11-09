@@ -225,16 +225,30 @@ final class OAuth2Client
         return $response->json();
     }
 
-    /** Revokes a refresh token (and its rotation family) or an access token. */
+    /**
+     * Revokes a refresh token (and its rotation family) or an access token. 9in answers 200
+     * for tokens that are unknown or already revoked (RFC 7009), so anything else is a real
+     * failure (e.g. invalid_client) and throws.
+     *
+     * @throws NineException
+     */
     public function revoke(string $token, string $hint = 'refresh_token'): void
     {
         $endpoint = $this->discovery()['revocation_endpoint'] ?? null;
         if (!$endpoint) {
             return;
         }
-        $form    = ['token' => $token, 'token_type_hint' => $hint];
-        $headers = $this->clientAuthHeaders($form);
-        $this->config->http->request('POST', (string) $endpoint, $headers, http_build_query($form, '', '&'));
+        $form     = ['token' => $token, 'token_type_hint' => $hint];
+        $headers  = $this->clientAuthHeaders($form);
+        $response = $this->config->http->request('POST', (string) $endpoint, $headers, http_build_query($form, '', '&'));
+        if (!$response->ok()) {
+            $json = $response->json();
+            throw new NineException(
+                (string) ($json['error'] ?? 'revocation_failed'),
+                isset($json['error_description']) ? (string) $json['error_description'] : "HTTP {$response->status}",
+                $response->status
+            );
+        }
     }
 
     /**

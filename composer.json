@@ -1,23 +1,27 @@
 {
-    "name": "ssofy/php-sdk",
+    "name": "9in/php-sdk",
     "type": "library",
-    "description": "Official SSOfy PHP SDK.",
+    "description": "Official 9in PHP SDK: OpenID Connect sign-in with PKCE, local access-token verification, Management API client, adapter v2 handler and webhook verification.",
     "keywords": [
-        "ssofy",
+        "9in",
         "sso",
         "login",
         "auth",
         "authentication",
-        "oauth",
         "oauth2",
+        "openid-connect",
+        "oidc",
+        "pkce",
+        "jwt",
+        "webhooks",
         "sdk"
     ],
-    "homepage": "https://www.ssofy.com",
+    "homepage": "https://9in.io",
     "license": "MIT",
     "authors": [
         {
-            "name": "SSOfy",
-            "email": "support@ssofy.com"
+            "name": "9in",
+            "email": "support@9in.io"
         },
         {
             "name": "Cubelet Ltd.",
@@ -25,28 +29,32 @@
         }
     ],
     "require": {
-        "php": ">=5.6",
+        "php": ">=8.1",
         "ext-curl": "*",
-        "ext-openssl": "*",
         "ext-json": "*",
-        "league/oauth2-client": "^2.6"
+        "ext-openssl": "*"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.13",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^10.5 || ^11.0"
     },
     "autoload": {
         "psr-4": {
-            "": "src/"
+            "Nine\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Nine\\Tests\\": "tests/"
         }
     },
     "scripts": {
-        "test": "phpunit --exclude skip",
+        "test": "phpunit",
         "cs-fixer": "php-cs-fixer fix"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.x-dev"
+            "dev-master": "3.x-dev"
         }
     }
 }

@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 3.0.0 - unreleased
+
+Rebranded as **9in** (`9in/php-sdk`, namespace `Nine\`) and moved to the 9in v2 protocol.
+See [MIGRATION.md](MIGRATION.md).
+
+* OpenID Connect client with discovery, PKCE S256, ID token verification against JWKS, refresh token rotation, revocation and RP-initiated logout.
+* `TokenVerifier`: local access-token verification with every key-library algorithm: RS256/384/512, PS256/384/512 (EMSA-PSS-VERIFY on any PHP ≥ 8.1), ES256, ES384, EdDSA (sodium), HS256/384/512 (`secret`). Requires `typ: at+jwt` and the key's `alg`; JWKS cache that follows key rotation. ID tokens verify with any asymmetric key.
+* `HybridTokenVerifier` / `Nine::createTokenVerifier()`: `local`, `hybrid` (default) and `introspect` modes, opaque `9in_at_` tokens, answers cached in a shared `StorageInterface` or an LRU, `handleEvent()` eviction for `token.revoked`, `session.revoked` and `user.*` webhooks.
+* `ManagementClient` for `/api/v1/*` with client-credentials tokens, including login links.
+* Adapter protocol v2: `AdapterHandler` + `AdapterInterface` for `/authenticate`, `/user` and `/event`.
+* `Signature`: timestamped `9in-signature` (`t=…,v1=HMAC-SHA256(t.METHOD.path.body)`), secret rotation, replay window.
+* `Webhook::verify()` for tenant webhooks (event list includes `session.revoked` and `token.revoked`).
+* `Env`: `NINE_*` variables with `SSOFY_*` fallbacks.
+* Issuers must use https (`Issuer::normalize`); http only for localhost, `allow_insecure_issuer` or `NINE_ALLOW_INSECURE_ISSUER`.
+* `EventDeduplicator` + `AtomicStorageInterface` (`add()` on Memory/File/Null storage) to process each webhook event once.
+* Requires PHP 8.1+; `league/oauth2-client` is no longer needed.
+* Removed: `APIClient`, `APIConfig`, the v1 signature classes, repository interfaces for clients/scopes/OTP, and the v1 entities.
+
+
 ## 2.2.1 - 2024-06-17
 
 * Corrected PaginatedResponse namespace and converted to entity. 

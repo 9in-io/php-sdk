@@ -1,6 +1,11 @@
 # CHANGELOG
 
-## 3.0.0 - unreleased
+## 3.0.1 - 2026-11-09
+
+Same code as 3.0.0, released again under a new version because the 3.0.0 tag was moved to a
+rewritten commit after Packagist had published it (published versions cannot change).
+
+## 3.0.0 - 2026-11-09
 
 Rebranded as **9in** (`9in/php-sdk`, namespace `Nine\`) and moved to the 9in v2 protocol.
 See [MIGRATION.md](MIGRATION.md).

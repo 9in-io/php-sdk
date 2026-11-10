@@ -173,21 +173,22 @@ final class HybridTokenVerifier
      * `token.revoked` (access token) by jti, `session.revoked` by sid, and
      * user.sessions_revoked / user.deleted / user.updated / user.password_changed by user.
      *
-     * @param array{type?: string, data?: array<string, mixed>} $event
+     * @param array{event?: string, data?: array<string, mixed>} $event a verified webhook event
      */
     public function handleEvent(array $event): int
     {
-        $type = (string) ($event['type'] ?? '');
+        $type = (string) ($event['event'] ?? '');
         $data = isset($event['data']) && is_array($event['data']) ? $event['data'] : [];
+        $userId = isset($data['user']) && is_array($data['user']) && isset($data['user']['id']) ? (string) $data['user']['id'] : '';
 
-        if ($type === 'token.revoked' && ($data['type'] ?? null) === 'access_token' && !empty($data['jti'])) {
+        if ($type === 'token.revoked' && ($data['token_type'] ?? null) === 'access_token' && !empty($data['jti'])) {
             return $this->answers->evict('jti', (string) $data['jti']);
         }
         if ($type === 'session.revoked' && !empty($data['sid'])) {
             return $this->answers->evict('sid', (string) $data['sid']);
         }
-        if (in_array($type, self::EVICTING_USER_EVENTS, true) && !empty($data['userId'])) {
-            return $this->answers->evict('sub', (string) $data['userId']);
+        if (in_array($type, self::EVICTING_USER_EVENTS, true) && $userId !== '') {
+            return $this->answers->evict('sub', $userId);
         }
         return 0;
     }

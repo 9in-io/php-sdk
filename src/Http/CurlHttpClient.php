@@ -13,7 +13,7 @@ final class CurlHttpClient implements HttpClientInterface
     /** @var string */
     private $userAgent;
 
-    public function __construct(int $timeoutSeconds = 10, string $userAgent = '9in-php-sdk/3')
+    public function __construct(int $timeoutSeconds = 10, string $userAgent = '9in-php-sdk/4')
     {
         $this->timeout   = $timeoutSeconds;
         $this->userAgent = $userAgent;

@@ -28,7 +28,7 @@ final class ManagementClientTest extends TestCase
 
     public function testUsesOneClientCredentialsTokenForSeveralCalls(): void
     {
-        $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users', ['users' => [], 'nextCursor' => null, 'total' => 0]);
+        $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users', ['users' => [], 'next_cursor' => null, 'total' => 0]);
         $client = $this->client();
         $client->listUsers(['query' => 'jane', 'limit' => 10]);
         $client->listUsers();
@@ -50,16 +50,18 @@ final class ManagementClientTest extends TestCase
     {
         $this->issuer->http->on('POST', TestIssuer::ISSUER . '/api/v1/users', function ($url, $headers, $body) {
             if (substr($url, -11) === '/login-link') {
-                return new Response(201, [], json_encode(['url' => 'https://acme.9in.test/login-link/abc', 'expires_at' => 1, 'echo' => json_decode($body, true)]));
+                return new Response(201, [], json_encode(['url' => 'https://acme.9in.test/login-link/abc', 'expires_at' => '2026-11-10T09:40:00.000Z', 'echo' => json_decode($body, true)]));
             }
             return new Response(201, [], json_encode(['user' => ['id' => 'usr_1'] + json_decode($body, true)]));
         });
         $client = $this->client();
-        $user   = $client->createUser(['email' => 'jane@acme.com', 'emailVerified' => true]);
+        $user   = $client->createUser(['email' => 'jane@acme.com', 'email_verified' => true]);
         $this->assertSame('usr_1', $user['id']);
+        $this->assertTrue($user['email_verified']);
 
         $link = $client->createLoginLink('usr_1', ['returnTo' => 'https://app.acme.test/cb', 'ttlSeconds' => 600]);
         $this->assertSame('https://acme.9in.test/login-link/abc', $link['url']);
+        $this->assertSame('2026-11-10T09:40:00.000Z', $link['expires_at']);
         $this->assertSame(['return_to' => 'https://app.acme.test/cb', 'ttl_seconds' => 600], $link['echo']);
 
         $empty = $client->createLoginLink('usr_1');
@@ -73,6 +75,10 @@ final class ManagementClientTest extends TestCase
         $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users/lookup', ['error' => 'not_found'], 404);
         $this->assertNull($this->client()->findUserByEmail('nobody@acme.com'));
         $this->assertStringEndsWith('/api/v1/users/lookup?email=nobody%40acme.com', $this->issuer->http->calls[count($this->issuer->http->calls) - 1]['url']);
+        $this->assertNull($this->client()->findUser('phone_number', '+447700900000'));
+        $this->assertStringEndsWith('/api/v1/users/lookup?phone_number=%2B447700900000', $this->issuer->http->calls[count($this->issuer->http->calls) - 1]['url']);
+        $this->expectException(\InvalidArgumentException::class);
+        $this->client()->findUser('phone', '+447700900000');
     }
 
     public function testDeleteAndSessions(): void
@@ -93,7 +99,7 @@ final class ManagementClientTest extends TestCase
             return new Response(200, [], json_encode(['results' => [['index' => 0, 'ok' => true, 'status' => 'created', 'id' => 'auth0|42']], 'echo' => json_decode($body, true)]));
         });
         $client  = $this->client();
-        $results = $client->importUsers([['id' => 'auth0|42', 'email' => 'jane@acme.com', 'passwordHash' => '$2b$10$x']], ['onConflict' => 'update', 'source' => 'auth0']);
+        $results = $client->importUsers([['id' => 'auth0|42', 'email' => 'jane@acme.com', 'password_hash' => '$2b$10$x', 'created_at' => '2020-01-01T00:00:00Z']], ['onConflict' => 'update', 'source' => 'auth0']);
         $this->assertSame('created', $results[0]['status']);
         $sent = json_decode((string) $this->issuer->http->callsTo(TestIssuer::ISSUER . '/api/v1/users/import')[0]['body'], true);
         $this->assertSame(['users', 'on_conflict', 'source'], array_keys($sent));
@@ -106,7 +112,7 @@ final class ManagementClientTest extends TestCase
 
     public function testListsAndEndsSessions(): void
     {
-        $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users/usr_1/sessions', ['sessions' => [['sid' => 's1', 'userId' => 'usr_1']]]);
+        $this->issuer->http->json('GET', TestIssuer::ISSUER . '/api/v1/users/usr_1/sessions', ['sessions' => [['sid' => 's1', 'user_id' => 'usr_1']]]);
         $this->issuer->http->on('DELETE', TestIssuer::ISSUER . '/api/v1/sessions/', function () {
             return new Response(204, [], '');
         });

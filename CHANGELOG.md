@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 4.0.0 - 2026-11-10
+
+Breaking: 9in's webhooks, adapter events and Management API are snake_case throughout, with
+ISO 8601 UTC times. Needs the 9in release of 2026-11-10. See [MIGRATION.md](MIGRATION.md).
+
+* `Webhook::verify()` returns `{id, event, created_at, tenant, environment, data}` and requires
+  `event`; `data.userId` is gone (`data.user.id`). `Webhook::EVENT_TYPE_HEADER` is replaced by
+  `Webhook::EVENT_HEADER` (`9in-event`).
+* `HybridTokenVerifier::handleEvent()` reads `event`, `data.token_type` and `data.user.id`.
+* `AdapterHandler` requires `event` (was `type`) on `/event`; `otp.requested` data is `user_id`,
+  `expires_at`.
+* `ManagementClient::findUser()` takes `phone_number` (was `phone`); documented shapes use the API's
+  snake_case names (`next_cursor`, `has_password`, ISO `expires_at` on login links).
+
 ## 3.1.0 - 2026-11-09
 
 * `OAuth2Client::revoke()` throws `NineException` when 9in refuses the revocation (for example

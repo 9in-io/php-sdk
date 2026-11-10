@@ -13,7 +13,10 @@ use Nine\Storage\StorageInterface;
  * `management:*` scopes in the console; the token is cached until shortly before it expires.
  *
  *   $nine = new ManagementClient('https://acme.9in.io', $clientId, $clientSecret);
- *   $user = $nine->createUser(['email' => 'jane@acme.com', 'password' => '…', 'emailVerified' => true]);
+ *   $user = $nine->createUser(['email' => 'jane@acme.com', 'password' => '…', 'email_verified' => true]);
+ *
+ * Users, sessions and inputs use the API's snake_case names (`email_verified`, `phone_number`,
+ * `password_hash`), the same going in and coming out; times are ISO 8601 UTC strings.
  *   $link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/callback']);
  */
 final class ManagementClient
@@ -66,7 +69,7 @@ final class ManagementClient
 
     /**
      * @param array{query?: string, cursor?: string, limit?: int} $options
-     * @return array{users: array<int, array<string, mixed>>, nextCursor: string|null, total?: int}
+     * @return array{users: array<int, array<string, mixed>>, next_cursor: string|null, total: int}
      */
     public function listUsers(array $options = []): array
     {
@@ -81,7 +84,7 @@ final class ManagementClient
     /**
      * User with identities, sessions, password and MFA status.
      *
-     * @return array{user: array<string, mixed>, identities?: array, sessions?: array, hasPassword?: bool, mfa?: array}
+     * @return array{user: array<string, mixed>, identities: array, sessions: array, has_password: bool, mfa: array{enabled: bool, enabled_at?: string, recovery_codes_left?: int}}
      */
     public function getUser(string $id): array
     {
@@ -89,13 +92,13 @@ final class ManagementClient
     }
 
     /**
-     * @param string $type email | phone | username
+     * @param string $type email | phone_number | username
      * @return array<string, mixed>|null the user, or null when there is none
      */
     public function findUser(string $type, string $value): ?array
     {
-        if (!in_array($type, ['email', 'phone', 'username'], true)) {
-            throw new \InvalidArgumentException('type must be email, phone or username');
+        if (!in_array($type, ['email', 'phone_number', 'username'], true)) {
+            throw new \InvalidArgumentException('type must be email, phone_number or username');
         }
         try {
             return $this->request('GET', '/users/lookup?' . http_build_query([$type => $value]))['user'];
@@ -116,7 +119,8 @@ final class ManagementClient
     }
 
     /**
-     * @param array{email?: string, phone?: string, username?: string, password?: string, name?: string, emailVerified?: bool, metadata?: array} $input
+     * @param array{email?: string, email_verified?: bool, phone_number?: string, phone_number_verified?: bool, username?: string, password?: string, password_hash?: string, name?: string, metadata?: array} $input
+     *        unknown keys are refused (invalid_user)
      * @return array<string, mixed> the created user
      */
     public function createUser(array $input): array
@@ -126,7 +130,8 @@ final class ManagementClient
 
     /**
      * Bulk import (up to 500 per call; bcrypt, argon2, PBKDF2 and Firebase scrypt hashes are
-     * accepted as `passwordHash`). Records may keep their old `id` and carry `identities`.
+     * accepted as `password_hash`). Records may keep their old `id` and carry `identities`, and
+     * `created_at` / `last_login_at` as ISO 8601 strings.
      *
      * @param array<int, array<string, mixed>>               $users
      * @param array{onConflict?: string, source?: string}     $options onConflict "skip" (default) or
@@ -173,7 +178,7 @@ final class ManagementClient
      * your applications or a path on the login domain. Two-factor authentication still applies.
      *
      * @param array{returnTo?: string, ttlSeconds?: int} $options
-     * @return array{url: string, expires_at: int}
+     * @return array{url: string, expires_at: string} expires_at is ISO 8601 UTC
      */
     public function createLoginLink(string $userId, array $options = []): array
     {

@@ -11,10 +11,11 @@ use Nine\Exceptions\SignatureException;
  *
  *   $event = Webhook::verify(getenv('NINE_WEBHOOK_SECRET'), file_get_contents('php://input'),
  *       $_SERVER['HTTP_9IN_SIGNATURE'] ?? null, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
- *   if ($event['type'] === 'user.created') { … }
+ *   if ($event['event'] === 'user.created') { … }
  *
- * Events carry an `id` that stays the same on every retry and redelivery, so you can
- * ignore duplicates.
+ * An event is `{id, event, created_at, tenant, environment, data}` (snake_case, ISO 8601 UTC
+ * times); `data['user']` is the user it is about, or null. Its `id` stays the same on every
+ * retry and redelivery, so you can ignore duplicates.
  */
 final class Webhook
 {
@@ -34,13 +35,14 @@ final class Webhook
     ];
 
     public const EVENT_ID_HEADER    = '9in-event-id';
-    public const EVENT_TYPE_HEADER  = '9in-event-type';
+    /** The event name (also the body's `event`). */
+    public const EVENT_HEADER       = '9in-event';
     public const DELIVERY_ID_HEADER = '9in-delivery-id';
 
     /**
      * @param string|string[] $secret signing secret(s) of the webhook endpoint
      * @param string          $path   the path 9in posted to (as in your endpoint URL, without query string)
-     * @return array{id: string, type: string, createdAt: string, tenant: string, environment: string, data: array<string, mixed>}
+     * @return array{id: string, event: string, created_at: string, tenant: string, environment: string, data: array<string, mixed>}
      * @throws SignatureException
      * @throws NineException      invalid_payload when the body is not a JSON event
      */
@@ -51,7 +53,7 @@ final class Webhook
         }
         Signature::assert($secret, $signatureHeader, 'POST', $path, $body, $toleranceSeconds);
         $event = json_decode($body, true);
-        if (!is_array($event) || !isset($event['id'], $event['type'])) {
+        if (!is_array($event) || !isset($event['id'], $event['event'])) {
             throw new NineException('invalid_payload', 'webhook body is not a JSON event', 400);
         }
         return $event;

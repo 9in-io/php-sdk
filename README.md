@@ -163,16 +163,21 @@ use Nine\ManagementClient;
 
 $nine = new ManagementClient('https://acme.9in.io', $clientId, $clientSecret);   // or ManagementClient::fromEnv()
 
-$user = $nine->createUser(['email' => 'jane@acme.com', 'password' => '…', 'emailVerified' => true]);
+$user = $nine->createUser(['email' => 'jane@acme.com', 'password' => '…', 'email_verified' => true]);
 $nine->findUserByEmail('jane@acme.com');
+$nine->findUser('phone_number', '+447700900123');   // or 'email', 'username'
 $nine->updateUser($user['id'], ['name' => 'Jane Doe', 'metadata' => ['plan' => 'pro']]);
 $nine->blockUser($user['id']);
 $nine->revokeUserSessions($user['id']);
-$nine->importUsers([['email' => 'old@acme.com', 'passwordHash' => '$2y$10$…']]);
+$nine->importUsers([['email' => 'old@acme.com', 'password_hash' => '$2y$10$…', 'created_at' => '2021-03-04T05:06:07Z']]);
 
 // Single-use sign-in link (replaces SSOfy's auth/token)
 $link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/callback', 'ttlSeconds' => 600]);
 ```
+
+Users, sessions and inputs use 9in's snake_case names, the same going in and coming out
+(`email_verified`, `phone_number`, `password_hash`); times are ISO 8601 UTC strings
+(`created_at`, `last_login_at`). Unknown fields are refused with `invalid_user`.
 
 Errors throw `Nine\Exceptions\NineException` with `getError()` (`not_found`,
 `identifier_taken`, …) and `getStatus()`.
@@ -208,8 +213,9 @@ final class MyUsers implements AdapterInterface
 
     public function onEvent(array $event): void
     {
-        if ($event['type'] === 'otp.requested') {
-            // deliver $event['data']['code'] to $event['data']['to'] by $event['data']['channel'] (email|sms)
+        if ($event['event'] === 'otp.requested') {
+            // deliver $event['data']['code'] to $event['data']['to'] by $event['data']['channel'] (email|sms);
+            // $event['data']['user_id'] is your id, $event['data']['expires_at'] an ISO 8601 time
         }
     }
 
@@ -255,7 +261,8 @@ try {
     exit;
 }
 
-if ($event['type'] === 'user.created') {
+// {id, event, created_at, tenant, environment, data}; data.user is the user it is about
+if ($event['event'] === 'user.created') {
     // $event['data']['user']
 }
 $hybridVerifier->handleEvent($event);   // token.revoked / session.revoked / user.* evict cached tokens

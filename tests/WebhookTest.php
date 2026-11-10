@@ -16,7 +16,7 @@ final class WebhookTest extends TestCase
     {
         return json_encode([
             'id'          => 'evt_1',
-            'event'       => 'user.created',
+            'event_type'  => 'user.created',
             'created_at'  => '2026-11-09T10:00:00.000Z',
             'tenant'      => 'tnt_1',
             'environment' => 'production',
@@ -28,10 +28,10 @@ final class WebhookTest extends TestCase
     {
         $body  = $this->body();
         $event = Webhook::verify(self::SECRET, $body, Signature::sign(self::SECRET, 'POST', '/webhooks/9in', $body), '/webhooks/9in');
-        $this->assertSame('user.created', $event['event']);
+        $this->assertSame('user.created', $event['event_type']);
         $this->assertSame('2026-11-09T10:00:00.000Z', $event['created_at']);
         $this->assertSame('usr_1', $event['data']['user']['id']);
-        $this->assertSame('9in-event', Webhook::EVENT_HEADER);
+        $this->assertSame('9in-event-type', Webhook::EVENT_TYPE_HEADER);
     }
 
     public function testRejectsAnotherPathOrSecret(): void

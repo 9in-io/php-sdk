@@ -107,8 +107,8 @@ final class HybridTokenVerifierTest extends TestCase
         }
 
         $revoked[] = $token;
-        $this->assertSame(0, $verifier->handleEvent(['event' => 'token.revoked', 'data' => ['token_type' => 'refresh_token', 'sid' => 'sid_1']]));
-        $this->assertSame(1, $verifier->handleEvent(['event' => 'token.revoked', 'data' => ['token_type' => 'access_token', 'jti' => 'j1']]));
+        $this->assertSame(0, $verifier->handleEvent(['event_type' => 'token.revoked', 'data' => ['token_type' => 'refresh_token', 'sid' => 'sid_1']]));
+        $this->assertSame(1, $verifier->handleEvent(['event_type' => 'token.revoked', 'data' => ['token_type' => 'access_token', 'jti' => 'j1']]));
         foreach ([1, 2] as $attempt) {
             try {
                 $verifier->verify($token);
@@ -127,16 +127,16 @@ final class HybridTokenVerifierTest extends TestCase
         $b        = $this->token($this->claims(['jti' => 'b', 'sid' => 'sid_2']));
         $verifier->verify($a);
         $verifier->verify($b);
-        $this->assertSame(1, $verifier->handleEvent(['event' => 'session.revoked', 'data' => ['sid' => 'sid_2', 'user' => ['id' => 'usr_1']]]));
-        $this->assertSame(1, $verifier->handleEvent(['event' => 'user.sessions_revoked', 'data' => ['count' => 1, 'user' => ['id' => 'usr_1']]]));
-        $this->assertSame(0, $verifier->handleEvent(['event' => 'user.login', 'data' => ['user' => ['id' => 'usr_1']]]));
+        $this->assertSame(1, $verifier->handleEvent(['event_type' => 'session.revoked', 'data' => ['sid' => 'sid_2', 'user' => ['id' => 'usr_1']]]));
+        $this->assertSame(1, $verifier->handleEvent(['event_type' => 'user.sessions_revoked', 'data' => ['count' => 1, 'user' => ['id' => 'usr_1']]]));
+        $this->assertSame(0, $verifier->handleEvent(['event_type' => 'user.login', 'data' => ['user' => ['id' => 'usr_1']]]));
         // The old shape evicts nothing.
         $this->assertSame(0, $verifier->handleEvent(['type' => 'user.deleted', 'data' => ['userId' => 'usr_1']]));
         $verifier->verify($a);
         $this->assertCount(3, $this->introspections);
 
         foreach (['user.deleted', 'user.updated', 'user.password_changed'] as $type) {
-            $this->assertSame(1, $verifier->handleEvent(['event' => $type, 'data' => ['user' => ['id' => 'usr_1']]]), $type);
+            $this->assertSame(1, $verifier->handleEvent(['event_type' => $type, 'data' => ['user' => ['id' => 'usr_1']]]), $type);
             $verifier->verify($a);
         }
     }
@@ -225,8 +225,8 @@ final class HybridTokenVerifierTest extends TestCase
         $this->assertCount(1, $this->introspections);
 
         $webhook = $this->verifier(['cache' => $shared]);                // webhook request
-        $this->assertSame(1, $webhook->handleEvent(['event' => 'session.revoked', 'data' => ['sid' => 'sid_1']]));
-        $this->assertSame(0, $webhook->handleEvent(['event' => 'session.revoked', 'data' => ['sid' => 'sid_1']]));
+        $this->assertSame(1, $webhook->handleEvent(['event_type' => 'session.revoked', 'data' => ['sid' => 'sid_1']]));
+        $this->assertSame(0, $webhook->handleEvent(['event_type' => 'session.revoked', 'data' => ['sid' => 'sid_1']]));
 
         $this->verifier(['cache' => $shared])->verify($token);           // request 3: asks again
         $this->assertCount(2, $this->introspections);

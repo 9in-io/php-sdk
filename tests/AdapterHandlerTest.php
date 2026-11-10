@@ -103,7 +103,7 @@ final class AdapterHandlerTest extends TestCase
 
     public function testEventsAre204AndSigned(): void
     {
-        $event    = ['id' => 'evt_1', 'event' => 'otp.requested', 'created_at' => '2026-11-09T10:00:00.000Z', 'data' => ['user_id' => '42', 'code' => '123456', 'channel' => 'email', 'to' => 'jane@acme.com', 'expires_at' => '2026-11-09T10:10:00.000Z']];
+        $event    = ['id' => 'evt_1', 'event_type' => 'otp.requested', 'created_at' => '2026-11-09T10:00:00.000Z', 'data' => ['user_id' => '42', 'code' => '123456', 'channel' => 'email', 'to' => 'jane@acme.com', 'expires_at' => '2026-11-09T10:10:00.000Z']];
         $response = $this->call('/adapter/event', $event);
         $this->assertSame(204, $response->status);
         $this->assertSame('', $response->body);

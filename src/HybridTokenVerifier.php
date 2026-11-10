@@ -173,11 +173,11 @@ final class HybridTokenVerifier
      * `token.revoked` (access token) by jti, `session.revoked` by sid, and
      * user.sessions_revoked / user.deleted / user.updated / user.password_changed by user.
      *
-     * @param array{event?: string, data?: array<string, mixed>} $event a verified webhook event
+     * @param array{event_type?: string, data?: array<string, mixed>} $event a verified webhook event
      */
     public function handleEvent(array $event): int
     {
-        $type = (string) ($event['event'] ?? '');
+        $type = (string) ($event['event_type'] ?? '');
         $data = isset($event['data']) && is_array($event['data']) ? $event['data'] : [];
         $userId = isset($data['user']) && is_array($data['user']) && isset($data['user']['id']) ? (string) $data['user']['id'] : '';
 

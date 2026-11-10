@@ -35,7 +35,7 @@ interface AdapterInterface
      * `otp.requested` data: user_id (your id), channel, to, code, purpose, expires_at (ISO 8601);
      * user.updated / user.password_changed: user_id, fields.
      *
-     * @param array{id: string, event: string, created_at: string, data: array<string, mixed>} $event
+     * @param array{id: string, event_type: string, created_at: string, data: array<string, mixed>} $event
      */
     public function onEvent(array $event): void;
 }

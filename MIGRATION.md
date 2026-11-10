@@ -8,12 +8,11 @@ Upgrade together with 9in; 3.x cannot read the new webhooks.
 
 | 3.x | 4.x |
 |---|---|
-| `$event['type']`, `$event['createdAt']` | `$event['event']`, `$event['created_at']` |
+| `$event['type']`, `$event['createdAt']` | `$event['event_type']`, `$event['created_at']` |
 | `$event['data']['userId']` | `$event['data']['user']['id']` (for `user.deleted`, the user as it was before the deletion) |
 | `token.revoked`: `data.type`, `data.clientId` | `data.token_type`, `data.client_id` |
 | `user.login`: `data.client` | `data.client_id` |
-| `Webhook::EVENT_TYPE_HEADER` (`9in-event-type`) | `Webhook::EVENT_HEADER` (`9in-event`) |
-| Adapter `onEvent`: `$event['type']`, `$event['createdAt']` | `$event['event']`, `$event['created_at']` |
+| Adapter `onEvent`: `$event['type']`, `$event['createdAt']` | `$event['event_type']`, `$event['created_at']` |
 | `otp.requested` `data.userId`, `data.expiresAt` | `data.user_id`, `data.expires_at` |
 | `createUser(['emailVerified' => …, 'phone' => …, 'phoneVerified' => …, 'passwordHash' => …])` | `email_verified`, `phone_number`, `phone_number_verified`, `password_hash` (the old names are refused) |
 | Import `createdAt`, `lastLoginAt` (ms) | `created_at`, `last_login_at` (ISO 8601 strings) |

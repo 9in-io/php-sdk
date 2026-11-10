@@ -95,7 +95,7 @@ final class AdapterHandler
                     : $this->respond($path, $requestId, 404, ['error' => 'not_found']);
 
             case 'event':
-                if (!isset($input['event']) || !is_string($input['event'])) {
+                if (!isset($input['event_type']) || !is_string($input['event_type'])) {
                     return $this->respond($path, $requestId, 400, ['error' => 'invalid_request']);
                 }
                 $input['data'] = isset($input['data']) && is_array($input['data']) ? $input['data'] : [];

@@ -213,7 +213,7 @@ final class MyUsers implements AdapterInterface
 
     public function onEvent(array $event): void
     {
-        if ($event['event'] === 'otp.requested') {
+        if ($event['event_type'] === 'otp.requested') {
             // deliver $event['data']['code'] to $event['data']['to'] by $event['data']['channel'] (email|sms);
             // $event['data']['user_id'] is your id, $event['data']['expires_at'] an ISO 8601 time
         }
@@ -261,8 +261,8 @@ try {
     exit;
 }
 
-// {id, event, created_at, tenant, environment, data}; data.user is the user it is about
-if ($event['event'] === 'user.created') {
+// {id, event_type, created_at, tenant, environment, data}; data.user is the user it is about
+if ($event['event_type'] === 'user.created') {
     // $event['data']['user']
 }
 $hybridVerifier->handleEvent($event);   // token.revoked / session.revoked / user.* evict cached tokens

@@ -17,7 +17,7 @@ use Nine\Storage\StorageInterface;
  *
  * Users, sessions and inputs use the API's snake_case names (`email_verified`, `phone_number`,
  * `password_hash`), the same going in and coming out; times are ISO 8601 UTC strings.
- *   $link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/callback']);
+ *   $link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/nine/callback']);
  */
 final class ManagementClient
 {

@@ -58,17 +58,17 @@ use Nine\OAuth2Config;
 use Nine\Storage\FileStorage;
 
 $client = new OAuth2Client(OAuth2Config::fromEnv([
-    'redirect_uri' => 'https://app.acme.com/callback',
+    'redirect_uri' => 'https://app.acme.com/nine/callback',
     'state_store'  => new FileStorage('/var/lib/myapp/9in'),   // pending logins (PKCE verifier, nonce)
     // 'scopes'   => ['openid', 'profile', 'email', 'offline_access'],   (default)
     // 'audience' => 'https://api.acme.com',                              access tokens for your API
 ]));
 
-// GET /login
+// GET /nine/login
 $login = $client->createAuthorizationUrl(['return_to' => '/dashboard']);   // or ['screen' => 'signup']
 header('Location: ' . $login['url']);
 
-// GET /callback
+// GET /nine/callback
 $tokens = $client->handleCallback($_GET);         // checks state + iss, exchanges the code, verifies the ID token
 $_SESSION['9in'] = $tokens->toArray();
 $user = $tokens->claims();                         // sub, email, name, …
@@ -172,7 +172,7 @@ $nine->revokeUserSessions($user['id']);
 $nine->importUsers([['email' => 'old@acme.com', 'password_hash' => '$2y$10$…', 'created_at' => '2021-03-04T05:06:07Z']]);
 
 // Single-use sign-in link (replaces SSOfy's auth/token)
-$link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/callback', 'ttlSeconds' => 600]);
+$link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/nine/callback', 'ttlSeconds' => 600]);
 ```
 
 Users, sessions and inputs use 9in's snake_case names, the same going in and coming out
@@ -228,7 +228,7 @@ final class MyUsers implements AdapterInterface
     }
 }
 
-// POST /9in/authenticate, /9in/user, /9in/event
+// POST /nine/authenticate, /nine/user, /nine/event
 $handler = new AdapterHandler(getenv('NINE_ADAPTER_SECRET'), new MyUsers());   // [new, old] during rotation
 $handler->handle(
     $_SERVER['REQUEST_METHOD'],

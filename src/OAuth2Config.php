@@ -13,7 +13,7 @@ use Nine\Storage\StorageInterface;
  *       'issuer'        => 'https://acme.9in.io',   // or your custom login domain
  *       'client_id'     => 'app_…',
  *       'client_secret' => '…',                     // confidential (server-side) apps
- *       'redirect_uri'  => 'https://app.acme.com/callback',
+ *       'redirect_uri'  => 'https://app.acme.com/nine/callback',
  *       'state_store'   => new FileStorage('/var/lib/myapp/nine'),
  *   ]);
  */

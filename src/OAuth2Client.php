@@ -14,11 +14,11 @@ use Nine\Jwt\Jwt;
  *
  *   $client = new OAuth2Client(OAuth2Config::fromEnv(['state_store' => $store]));
  *
- *   // /login
+ *   // /nine/login
  *   $login = $client->createAuthorizationUrl(['return_to' => '/dashboard']);
  *   header('Location: ' . $login['url']);
  *
- *   // /callback
+ *   // /nine/callback
  *   $tokens = $client->handleCallback($_GET);
  *   $_SESSION['nine'] = $tokens->toArray();
  *

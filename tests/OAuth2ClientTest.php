@@ -232,10 +232,13 @@ final class OAuth2ClientTest extends TestCase
         $this->assertEquals($set, TokenSet::fromArray($set->toArray()));
     }
 
-    public function testAcceptsTheSsofyUrlKey(): void
+    public function testNeedsAnIssuer(): void
     {
-        $config = new OAuth2Config(['url' => 'https://login.acme.test/', 'client_id' => 'x']);
+        $config = new OAuth2Config(['issuer' => 'https://login.acme.test/', 'client_id' => 'x']);
         $this->assertSame('https://login.acme.test', $config->issuer);
         $this->assertSame(OAuth2Config::DEFAULT_SCOPES, $config->scopes);
+
+        $this->expectException(\InvalidArgumentException::class);
+        new OAuth2Config(['url' => 'https://login.acme.test/', 'client_id' => 'x']); // the old SSOfy key is gone
     }
 }

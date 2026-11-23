@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 5.0.0 - 2026-11-23
+
+Breaking: SSOfy is gone, and so is what this package kept for it. See [MIGRATION.md](MIGRATION.md).
+
+* `SSOFY_*` environment variables are no longer read; use the `NINE_*` names.
+* `OAuth2Config` no longer accepts `url` for the issuer; use `issuer`.
+
 ## 4.0.0 - 2026-11-10
 
 Breaking: 9in's webhooks, adapter events and Management API are snake_case throughout, with

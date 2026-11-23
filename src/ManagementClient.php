@@ -61,7 +61,7 @@ final class ManagementClient
         ]));
     }
 
-    /** NINE_ISSUER, NINE_CLIENT_ID, NINE_CLIENT_SECRET (SSOFY_* fallbacks). */
+    /** NINE_ISSUER, NINE_CLIENT_ID, NINE_CLIENT_SECRET. */
     public static function fromEnv(?HttpClientInterface $http = null): self
     {
         return new self((string) Env::get('ISSUER'), (string) Env::get('CLIENT_ID'), (string) Env::get('CLIENT_SECRET'), $http);
@@ -174,7 +174,7 @@ final class ManagementClient
 
     /**
      * Single-use sign-in URL (magic links, handing a signed-in user over from your app).
-     * Replaces SSOfy's `auth/token`. `returnTo` must be a registered redirect URL of one of
+     * `returnTo` must be a registered redirect URL of one of
      * your applications or a path on the login domain. Two-factor authentication still applies.
      *
      * @param array{returnTo?: string, ttlSeconds?: int} $options

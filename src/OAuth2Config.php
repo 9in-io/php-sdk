@@ -62,7 +62,7 @@ final class OAuth2Config
      */
     public function __construct(array $config = [])
     {
-        $issuer = $config['issuer'] ?? $config['url'] ?? null; // `url` was the SSOfy name
+        $issuer = $config['issuer'] ?? null;
         if (empty($issuer) || empty($config['client_id'])) {
             throw new \InvalidArgumentException('issuer and client_id are required');
         }
@@ -83,7 +83,7 @@ final class OAuth2Config
 
     /**
      * Reads NINE_ISSUER, NINE_CLIENT_ID, NINE_CLIENT_SECRET, NINE_REDIRECT_URI, NINE_SCOPES,
-     * NINE_AUDIENCE (SSOFY_URL / SSOFY_CLIENT_ID / SSOFY_CLIENT_SECRET as fallbacks).
+     * NINE_AUDIENCE.
      *
      * @param array<string, mixed> $overrides
      */

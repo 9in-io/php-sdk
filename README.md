@@ -25,24 +25,20 @@ composer require 9in/php-sdk:^3.0
 Using Laravel? See [`9in/laravel`](https://github.com/9in-io/laravel) (sign-in, guard, webhooks)
 and [`9in/laravel-server`](https://github.com/9in-io/laravel-server) (adapter endpoints).
 
-Upgrading from `ssofy/php-sdk` 2.x? Read [MIGRATION.md](MIGRATION.md).
-
 ## Configuration
 
-Every setting can come from the environment. `NINE_*` names are read first, the old
-`SSOFY_*` names are still accepted as fallbacks:
+Every setting can come from the environment:
 
-| Variable | Fallback | Used for |
-|---|---|---|
-| `NINE_ISSUER` | `SSOFY_URL` | Your tenant, e.g. `https://acme.9in.io` or your custom login domain |
-| `NINE_CLIENT_ID` | `SSOFY_CLIENT_ID` | Application (client) id |
-| `NINE_CLIENT_SECRET` | `SSOFY_CLIENT_SECRET` | Confidential applications and the Management API |
-| `NINE_REDIRECT_URI` | `SSOFY_REDIRECT_URI` | Callback URL registered for the application |
-| `NINE_ADAPTER_SECRET` | `SSOFY_API_SECRET` | Adapter (Connections → User database) signing secret |
-| `NINE_WEBHOOK_SECRET` | `SSOFY_WEBHOOK_SECRET` | Webhook endpoint signing secret |
+| Variable | Used for |
+|---|---|
+| `NINE_ISSUER` | Your tenant, e.g. `https://acme.9in.io` or your custom login domain |
+| `NINE_CLIENT_ID` | Application (client) id |
+| `NINE_CLIENT_SECRET` | Confidential applications and the Management API |
+| `NINE_REDIRECT_URI` | Callback URL registered for the application |
+| `NINE_ADAPTER_SECRET` | Adapter (Connections → User database) signing secret |
+| `NINE_WEBHOOK_SECRET` | Webhook endpoint signing secret |
 
-`Nine\Env::get('ISSUER')` returns the value and `Nine\Env::source('ISSUER')` tells you which
-variable it came from.
+`Nine\Env::get('ISSUER')` returns a setting (`NINE_ISSUER`).
 
 Issuers must use `https://` (`insecure_issuer` otherwise), so a typo cannot send codes,
 tokens or client secrets in clear text. Plain http is accepted for `localhost`,
@@ -171,7 +167,7 @@ $nine->blockUser($user['id']);
 $nine->revokeUserSessions($user['id']);
 $nine->importUsers([['email' => 'old@acme.com', 'password_hash' => '$2y$10$…', 'created_at' => '2021-03-04T05:06:07Z']]);
 
-// Single-use sign-in link (replaces SSOfy's auth/token)
+// Single-use sign-in link
 $link = $nine->createLoginLink($user['id'], ['returnTo' => 'https://app.acme.com/nine/callback', 'ttlSeconds' => 600]);
 ```
 
@@ -302,4 +298,4 @@ composer test
 
 ## License
 
-The MIT License (MIT). See [LICENSE](LICENSE). 9in and SSOfy are by [Cubelet Ltd](https://cubelet.co.uk).
+The MIT License (MIT). See [LICENSE](LICENSE). 9in is by [Cubelet Ltd](https://cubelet.co.uk).
